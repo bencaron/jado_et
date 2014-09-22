@@ -1,4 +1,4 @@
 jado_et
 =======
 
-Jado is an alien this Halloween
+Jado est un ExtraTerrestre pour l'Halloween.
