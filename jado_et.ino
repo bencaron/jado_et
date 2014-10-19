@@ -19,15 +19,16 @@ typedef struct {
   bool up: true;
 }pulser_t;
 
-const int BUMP = 5;
+const int DEBUG = 0;
+const int BUMP = 2;
 const int MAX = 150;
 const int MIN = 1;
 const int HL = 0; // HeadLeft
 const int HR = 1; // HeadRight
 const int FL = 2; // FingerRight
-const int TOTAL_GIZMOS = 1; // How many gizmos we have?
+const int TOTAL_GIZMOS = 3; // How many gizmos we have?
 
-int pintmp = 9;
+int pintmp = 12;
 // our gizmos
 pulser_t Gizmos[TOTAL_GIZMOS];
 
@@ -36,16 +37,13 @@ long previousMillis = 0;        // will store last time LED was updated
 
 // the follow variables is a long because the time, measured in miliseconds,
 // will quickly become a bigger number than can be stored in an int.
-unsigned long interval = 500;           // interval at which to blink (milliseconds)
+unsigned long interval = 20;           // interval at which to blink (milliseconds)
 
 void setup() {
   Serial.begin(9600);
 
-  //Gizmos[HL].pin1 = 3;
-  //Gizmos[HL].pin2 = 5;
-
-  Gizmos[HL].pin1 = 10;
-  Gizmos[HL].pin2 = 11;
+  Gizmos[HL].pin1 = 3;
+  Gizmos[HL].pin2 = 5;
 
   Gizmos[HR].pin1 = 10;
   Gizmos[HR].pin2 = 11;
@@ -54,8 +52,10 @@ void setup() {
   Gizmos[FL].pin2 = 9;
 
   for (int i = 0; i < TOTAL_GIZMOS; i++){
-    Serial.print("set value for ");
-    Serial.print(i);
+    if (DEBUG){
+      Serial.print("set value for ");
+      Serial.print(i);
+    }
     Gizmos[i].val1 = MIN;
     Gizmos[i].val2 = MAX;
     Gizmos[i].up = true;
@@ -67,17 +67,22 @@ void loop()
   // check to see if it's time to animate the gizmos
   unsigned long currentMillis = millis();
   if(currentMillis - previousMillis > interval) {
-    Serial.print("new loop\n------\n\n");
+    if (DEBUG)
+      Serial.print("new loop\n------\n\n");
     previousMillis = currentMillis;
     // set new state for each gizmos
     for (int gizmo = 0; gizmo < TOTAL_GIZMOS; gizmo++){
       animateGizmo(gizmo);
     }
     if (Gizmos[0].up){
-      Serial.print("debug up\n");
+      if (DEBUG){
+        Serial.print("debug up\n");
+      }
       analogWrite(pintmp, 225);
     } else {
-      Serial.print("debug down\n");
+      if (DEBUG){
+        Serial.print("debug down\n");
+      }
       analogWrite(pintmp, 0);
     }
   }
@@ -90,19 +95,19 @@ void animateGizmo(int gizmo){
 */
   if (Gizmos[gizmo].up){
     if (Gizmos[gizmo].val1 < MAX){
-      Serial.print("go up\n");
+      if (DEBUG){ Serial.print("go up\n"); }
       gizmoUp(gizmo);
     } else {
       // Change direction
-      Serial.print("up toggle to down\n");
+      if (DEBUG){ Serial.print("up toggle to down\n");}
       gizmoToggle(gizmo);
     }
   } else {
     if (Gizmos[gizmo].val1 > MIN){
-      Serial.print("go down\n");
+      if (DEBUG) { Serial.print("go down\n");}
       gizmoDown(gizmo);
     } else {
-      Serial.print("down toggle to up\n");
+      if (DEBUG) { Serial.print("down toggle to up\n");}
       gizmoToggle(gizmo);
     }
   }
@@ -110,12 +115,14 @@ void animateGizmo(int gizmo){
 }
 
 void gizmoUp(int gizmo){
-  Serial.print("up\n");
-  Serial.print("val1= ");
-  Serial.print( Gizmos[gizmo].val1) ;
-  Serial.print(" val2= ");
-  Serial.print( Gizmos[gizmo].val2) ;
-  Serial.print("\n");
+  if (DEBUG){
+    Serial.print("up\n");
+    Serial.print("val1= ");
+    Serial.print( Gizmos[gizmo].val1) ;
+    Serial.print(" val2= ");
+    Serial.print( Gizmos[gizmo].val2) ;
+    Serial.print("\n");
+  }
   if(Gizmos[gizmo].val1 < MAX){
     Gizmos[gizmo].val1 += BUMP;
   }
@@ -126,22 +133,23 @@ void gizmoUp(int gizmo){
 
 void gizmoToggle(int gizmo){
   if (Gizmos[gizmo].up){
-    Serial.print("Toggle DOWN\n");
+    if (DEBUG) { Serial.print("Toggle DOWN\n");}
     Gizmos[gizmo].up = false;
   } else {
-    Serial.print("Toggle UP\n");
+    if (DEBUG) { Serial.print("Toggle UP\n");}
     Gizmos[gizmo].up = true;
   }
 }
 
 void gizmoDown(int gizmo){
-  Serial.print("down\n");
-  Serial.print("val1= ");
-  Serial.print( Gizmos[gizmo].val1) ;
-  Serial.print(" val2= ");
-  Serial.print( Gizmos[gizmo].val2) ;
-  Serial.print("\n");
-
+  if (DEBUG) {
+    Serial.print("down\n");
+    Serial.print("val1= ");
+    Serial.print( Gizmos[gizmo].val1) ;
+    Serial.print(" val2= ");
+    Serial.print( Gizmos[gizmo].val2) ;
+    Serial.print("\n");
+  }
   if(Gizmos[gizmo].val1 > MIN){
     Gizmos[gizmo].val1 -= BUMP;
   }
@@ -151,20 +159,20 @@ void gizmoDown(int gizmo){
 }
 
 void gizmoShow(int gizmo){
-  Serial.print("show\n");
-  Serial.print("1 : ");
-  Serial.print(Gizmos[gizmo].pin1);
-  Serial.print(" - ");
-  Serial.print( Gizmos[gizmo].val1);
-  Serial.print("\n");
+  if (DEBUG) {
+    Serial.print("show\n");
+    Serial.print("1 : ");
+    Serial.print(Gizmos[gizmo].pin1);
+    Serial.print(" - ");
+    Serial.print( Gizmos[gizmo].val1);
+    Serial.print("\n");
 
-  Serial.print("2 : ");
-  Serial.print(Gizmos[gizmo].pin2);
-  Serial.print(" - ");
-  Serial.print( Gizmos[gizmo].val2);
-  Serial.print("\n");
-
-
+    Serial.print("2 : ");
+    Serial.print(Gizmos[gizmo].pin2);
+    Serial.print(" - ");
+    Serial.print( Gizmos[gizmo].val2);
+    Serial.print("\n");
+  }
   analogWrite(Gizmos[gizmo].pin1, Gizmos[gizmo].val1);
   analogWrite(Gizmos[gizmo].pin2, Gizmos[gizmo].val2);
 }
