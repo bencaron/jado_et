@@ -19,16 +19,17 @@ typedef struct {
   bool up: true;
 }pulser_t;
 
+// WARNING: debug mode mess up the led timing!
 const int DEBUG = 0;
-const int BUMP = 2;
-const int MAX = 150;
-const int MIN = 1;
+const int BUMP = 5;
+const int MAX = 255;
+const int MIN = 50;
 const int HL = 0; // HeadLeft
 const int HR = 1; // HeadRight
 const int FL = 2; // FingerRight
 const int TOTAL_GIZMOS = 3; // How many gizmos we have?
 
-int pintmp = 12;
+int pindbg = 12;
 // our gizmos
 pulser_t Gizmos[TOTAL_GIZMOS];
 
@@ -37,28 +38,36 @@ long previousMillis = 0;        // will store last time LED was updated
 
 // the follow variables is a long because the time, measured in miliseconds,
 // will quickly become a bigger number than can be stored in an int.
-unsigned long interval = 20;           // interval at which to blink (milliseconds)
+unsigned long interval = 50;           // interval at which to blink (milliseconds)
 
 void setup() {
-  Serial.begin(9600);
+  if (DEBUG){
+    Serial.begin(9600);
+  }
 
-  Gizmos[HL].pin1 = 3;
-  Gizmos[HL].pin2 = 5;
+  Gizmos[HL].pin1 = 6;
+  Gizmos[HL].pin2 = 9;
 
   Gizmos[HR].pin1 = 10;
   Gizmos[HR].pin2 = 11;
 
-  Gizmos[FL].pin1 = 6;
-  Gizmos[FL].pin2 = 9;
+  Gizmos[FL].pin1 = 3;
+  Gizmos[FL].pin2 = 5;
 
   for (int i = 0; i < TOTAL_GIZMOS; i++){
     if (DEBUG){
       Serial.print("set value for ");
       Serial.print(i);
     }
-    Gizmos[i].val1 = MIN;
-    Gizmos[i].val2 = MAX;
-    Gizmos[i].up = true;
+    if (i % 2){
+      Gizmos[i].val1 = MIN;
+      Gizmos[i].val2 = MAX;
+      Gizmos[i].up = true;
+    } else {
+      Gizmos[i].val1 = MAX;
+      Gizmos[i].val2 = MIN;
+      Gizmos[i].up = false;
+    }
   }
 }
 
@@ -77,13 +86,13 @@ void loop()
     if (Gizmos[0].up){
       if (DEBUG){
         Serial.print("debug up\n");
+        analogWrite(pindbg, 225);
       }
-      analogWrite(pintmp, 225);
     } else {
       if (DEBUG){
         Serial.print("debug down\n");
+        analogWrite(pindbg, 0);
       }
-      analogWrite(pintmp, 0);
     }
   }
 }
